@@ -4,5 +4,10 @@
     <string name="app_name">Sunshine</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-
+    <string name="Segunda">Segunda</string>
+    <string name="ImgTeste">Imagem de Teste</string>
+    <string name="TempMaxima">0º</string>
+    <string name="TempMinima">0º</string>
+    <string name="condição">tempo</string>
+    <string name="refresh">Refresh</string>
 </resources>
