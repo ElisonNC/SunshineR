@@ -133,16 +133,10 @@ public class ForecastFragment extends Fragment implements AsyncResponse{
 
 
     @Override
-    public void processFinish(String output) {
-       int dayIndex = 0;
-       WeatherDataParser parse = new WeatherDataParser();
-
-            try {
-                Double maxTemp = parse.getMaxTemperatureForDay(output,dayIndex);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-
+    public void processFinish(String[] output) {
+        if ( output != null){
+            adapter.clear();
+            adapter.addAll(output);
+        }
     }
 }

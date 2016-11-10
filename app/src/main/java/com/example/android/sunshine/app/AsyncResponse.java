@@ -6,6 +6,6 @@ package com.example.android.sunshine.app;
 
 public interface AsyncResponse {
 
-void processFinish(String output);
+void processFinish(String[] output);
 
 }

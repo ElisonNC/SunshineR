@@ -3,6 +3,8 @@ package com.example.android.sunshine.app;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import org.json.JSONException;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,7 +16,7 @@ import java.net.URL;
  * Created by elison.coelho on 08/11/2016.
  */
 
-public class DownloadDataFromOWM extends AsyncTask<URL,Integer,String> {
+public class DownloadDataFromOWM extends AsyncTask<URL,Integer,String[]> {
 
     private final String LOG_TAG = DownloadDataFromOWM.class.getSimpleName();
 
@@ -22,7 +24,7 @@ public class DownloadDataFromOWM extends AsyncTask<URL,Integer,String> {
 
 
     @Override
-    protected String doInBackground(URL... urls) {
+    protected String[] doInBackground(URL... urls) {
         // These two need to be declared outside the try/catch
         // so that they can be closed in the finally block.
         HttpURLConnection urlConnection = null;
@@ -85,12 +87,20 @@ public class DownloadDataFromOWM extends AsyncTask<URL,Integer,String> {
             }
         }
 
-        return forecastJsonStr;
+        WeatherDataParser parse = new WeatherDataParser();
+
+        try {
+            return parse.getMaxTemperatureForDay(forecastJsonStr,5);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
 
 
-    protected void onPostExecute(String result) {
+    protected void onPostExecute(String[] result) {
 
         delegate.processFinish(result);
 
