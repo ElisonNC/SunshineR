@@ -101,7 +101,7 @@ public class ForecastFragment extends Fragment implements AsyncResponse{
            // String syncConnPref = sharedPref.getString(SettingsActivity.KEY, "")
 
                  task.delegate = this;
-                 task.execute(makeURL(""));
+                 task.execute(makeURL("test"));
 
             return true;
         }
