@@ -1,6 +1,10 @@
 package com.example.android.sunshine.app;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -13,8 +17,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 
 import org.json.JSONException;
@@ -56,7 +62,7 @@ public class ForecastFragment extends Fragment implements AsyncResponse{
 
     public URL makeURL (String cidade) {
 
-        //  "http://api.openweathermap.org/data/2.5/forecast?q=Lages,br&units=metric&appid=3e49709532f67599b8b2b7cd01d44293"
+        // "http://api.openweathermap.org/data/2.5/forecast?q=Lages,br&units=metric&appid=3e49709532f67599b8b2b7cd01d44293"
 
         Uri.Builder builder = new Uri.Builder();
         builder.scheme("http")
@@ -90,8 +96,12 @@ public class ForecastFragment extends Fragment implements AsyncResponse{
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
 
+
+            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+           // String syncConnPref = sharedPref.getString(SettingsActivity.KEY, "")
+
                  task.delegate = this;
-                 task.execute(makeURL("Lages"));
+                 task.execute(makeURL(""));
 
             return true;
         }
@@ -101,10 +111,10 @@ public class ForecastFragment extends Fragment implements AsyncResponse{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+        final View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
 
-        String[] forecastArray = {"Hoje - Sol - 14/30",
+        final String[] forecastArray = {"Hoje - Sol - 14/30",
                 "Amanhã - Sol - 14/30",
                 "Quinta - Sol - 14/30",
                 "Sexta - Sol - 14/30",
@@ -121,12 +131,17 @@ public class ForecastFragment extends Fragment implements AsyncResponse{
                 R.id.list_item_forecast_textview,
                 weekForecast);
 
-        ListView forecastListView = (ListView) rootView.findViewById(R.id.listview_forecast);
+        final ListView forecastListView = (ListView) rootView.findViewById(R.id.listview_forecast);
         forecastListView.setAdapter(adapter);
+        forecastListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
-
-
-
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                String forecast = adapter.getItem(position);
+                Intent intent = new Intent(getActivity(), DetailActivity.class).putExtra(Intent.EXTRA_TEXT, forecast);
+                startActivity(intent);
+            }
+        });
 
         return rootView;
     }

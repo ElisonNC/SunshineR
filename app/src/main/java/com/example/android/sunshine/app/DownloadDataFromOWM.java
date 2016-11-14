@@ -1,6 +1,7 @@
 package com.example.android.sunshine.app;
 
 import android.os.AsyncTask;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -25,6 +26,25 @@ public class DownloadDataFromOWM extends AsyncTask<URL,Integer,String[]> {
 
     @Override
     protected String[] doInBackground(URL... urls) {
+
+        String forecastJsonStr = getJsonWeatherFromServer(urls);
+
+        if (forecastJsonStr == null) return null;
+
+
+        WeatherDataParser parse = new WeatherDataParser();
+
+        try {
+            return parse.parseJsonFor3HourWeather(forecastJsonStr);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    @Nullable
+    private String getJsonWeatherFromServer(URL[] urls) {
         // These two need to be declared outside the try/catch
         // so that they can be closed in the finally block.
         HttpURLConnection urlConnection = null;
@@ -86,18 +106,8 @@ public class DownloadDataFromOWM extends AsyncTask<URL,Integer,String[]> {
                 }
             }
         }
-
-        WeatherDataParser parse = new WeatherDataParser();
-
-        try {
-            return parse.getMaxTemperatureForDay(forecastJsonStr,5);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return null;
+        return forecastJsonStr;
     }
-
 
 
     protected void onPostExecute(String[] result) {

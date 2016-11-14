@@ -15,94 +15,68 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 
 
-/**
- * Created by elison.coelho on 09/11/2016.
- */
-
 public class WeatherDataParser {
 
 
-    public String[] getMaxTemperatureForDay(String weatherJsonStr, int dayIndex) throws JSONException {
+    public String[] parseJsonFor3HourWeather(String weatherJsonStr) throws JSONException {
+
+        JSONObject completeJson = new JSONObject(weatherJsonStr);
+        JSONArray arrayOfWeatherData3hours = (JSONArray) completeJson.get("list");
+
+        String dateOfWeatherData;
 
 
+        String[] forecast = new String[arrayOfWeatherData3hours.length()];
 
-        JSONObject o = new JSONObject(weatherJsonStr);
-        JSONArray arrayOfTests = (JSONArray) o.get("list");
+        for (int i = 0; i < arrayOfWeatherData3hours.length(); i++) {
 
-        LinkedHashMap<String, Double> map = new LinkedHashMap<>();
+            JSONObject weatherData3Hour = (JSONObject) arrayOfWeatherData3hours.get(i);
 
-        String date = "";
-        int j = 0;
-        Double tempMaxLast = 0.0;
-        Double tempMinLast = 0.0;
-        String[] forecast = new String[5];
-        for (int i = 0; i < arrayOfTests.length(); i++) {
+            dateOfWeatherData = returnDate(weatherData3Hour.get("dt_txt").toString());
 
-            JSONObject item = (JSONObject) arrayOfTests.get(i);
+            JSONObject Main = (JSONObject) weatherData3Hour.get("main");
 
-
-            date = returnDay(item.get("dt_txt").toString());
-
-            JSONObject Main = (JSONObject) item.get("main");
             Double tempMax = Double.parseDouble(Main.get("temp_max").toString());
-             tempMinLast = tempMax;
-            JSONObject weatherObject = item.getJSONArray("weather").getJSONObject(0);
+            Double tempMin = Double.parseDouble(Main.get("temp_min").toString());
+
+            JSONObject weatherObject = weatherData3Hour.getJSONArray("weather").getJSONObject(0);
             String description = weatherObject.getString("description");
 
-            if (map.containsKey(date)){
-
-               if (tempMaxLast < tempMax){
-                   tempMaxLast = tempMax;
-               }else
-               {
-                   if (tempMax < tempMinLast){
-                   tempMinLast = tempMax;
-               }
-
-               }
+            forecast[i] = dateOfWeatherData + " - " + description + " - " + formatHighLows(tempMax,tempMin);
+        }
 
 
-                //    String mapValue = map.get(date).toString();
-            //  Double d = Double.parseDouble(mapValue);
-           //   if (tempMax > d){
-                map.put(date, tempMax);
-
-           //   }
-            }else {
-                if (i != 0){
-
-                    forecast[j] = date + " - " + description + " - " + tempMaxLast + " / " + tempMinLast;
-                    j++;
-                }
-
-
-                map.put(date, tempMax);
-            }
-
-            }
-      //  Double d = (Double) getElementByIndex(map,0);
         return forecast;
     }
 
     public Object getElementByIndex(LinkedHashMap map, int i){
         return map.get(map.keySet().toArray()[i]);
     }
-    public String returnDay(String date) {
+    public String returnDate(String date) {
         String str_date = date;
         DateFormat formatter;
 
-        formatter = new SimpleDateFormat("yyyy-MM-dd");
+        formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String day = "";
         Date newdate = null;
         try {
 
             newdate = formatter.parse(str_date);
             String[] splitDate = (newdate.toString()).split(" ");
-            day = (""+splitDate[0]+", "+splitDate[1]+" "+ splitDate[2]+"");
+            day = (""+splitDate[0]+", "+splitDate[1]+" "+ splitDate[2]+" "+ splitDate[3]+"");
 
         } catch (ParseException e) {
             e.printStackTrace();
         }
         return day;
+    }
+
+    private String formatHighLows(double high, double low) {
+        // For presentation, assume the user doesn't care about tenths of a degree.
+        long roundedHigh = Math.round(high);
+        long roundedLow = Math.round(low);
+
+        String highLowStr = roundedHigh + "/" + roundedLow;
+        return highLowStr;
     }
 }
