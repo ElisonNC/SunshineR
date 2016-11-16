@@ -7,8 +7,19 @@
             android:title="@string/pref_location_label"
             android:key="@string/pref_location_key"
             android:defaultValue="@string/pref_location_default"
+
             android:inputType="text"
             android:singleLine="true"
+        />
+
+    <ListPreference
+        android:title="@string/pref_temp_units_label"
+        android:key="@string/pref_temp_units_key"
+        android:defaultValue="@string/pref_temp_units_default"
+        android:summary="%s"
+
+        android:entries="@array/Units"
+        android:entryValues="@array/UnitsValue"
         />
 
 

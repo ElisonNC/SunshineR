@@ -1,5 +1,10 @@
 package com.example.android.sunshine.app;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.util.Log;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,12 +22,16 @@ import java.util.LinkedHashMap;
 
 public class WeatherDataParser {
 
+    public static String location;
+    private final String LOG_TAG = ForecastFragment.class.getSimpleName();
 
     public String[] parseJsonFor3HourWeather(String weatherJsonStr) throws JSONException {
 
         JSONObject completeJson = new JSONObject(weatherJsonStr);
         JSONArray arrayOfWeatherData3hours = (JSONArray) completeJson.get("list");
-
+        JSONObject city = (JSONObject) completeJson.get("city");
+        JSONObject latlong = (JSONObject) city.get("coord");
+        location = saveLatLong(latlong);
         String dateOfWeatherData;
 
 
@@ -49,9 +58,23 @@ public class WeatherDataParser {
         return forecast;
     }
 
-    public Object getElementByIndex(LinkedHashMap map, int i){
-        return map.get(map.keySet().toArray()[i]);
+    public String saveLatLong(JSONObject latlong){
+
+        String location = "";
+        try{
+
+            String latitude = latlong.get("lat").toString();
+            String longitude = latlong.get("lon").toString();
+
+            return "geo:" + latitude + "," + longitude;
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return location;
     }
+
     public String returnDate(String date) {
         String str_date = date;
         DateFormat formatter;
@@ -73,6 +96,20 @@ public class WeatherDataParser {
 
     private String formatHighLows(double high, double low) {
         // For presentation, assume the user doesn't care about tenths of a degree.
+        Context context = MySuperAppApplication.getContext();
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+
+
+        String unidadeDasPreferencias = sharedPref.getString(context.getString(R.string.pref_temp_units_key),context.getString(R.string.pref_temp_units_default));
+
+        if (unidadeDasPreferencias.equals(context.getString(R.string.pref_temp_units_imperial))){
+            high = (high * 1.8) + 32;
+            low = (low * 1.8) + 32;
+        }else if (!unidadeDasPreferencias.equals(context.getString(R.string.pref_temp_units_imperial))){
+
+            Log.d(LOG_TAG, "Unit type not found:" + unidadeDasPreferencias);
+
+        }
         long roundedHigh = Math.round(high);
         long roundedLow = Math.round(low);
 

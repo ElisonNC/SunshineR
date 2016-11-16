@@ -5,11 +5,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
+
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,10 +19,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
-
-
-import org.json.JSONException;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -39,7 +34,7 @@ public class ForecastFragment extends Fragment implements AsyncResponse{
 
 
     private final String LOG_TAG = ForecastFragment.class.getSimpleName();
-    DownloadDataFromOWM task = new DownloadDataFromOWM();
+
 
     public ForecastFragment() {
 
@@ -58,7 +53,9 @@ public class ForecastFragment extends Fragment implements AsyncResponse{
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.forecastfragment, menu);
+        inflater.inflate(R.menu.main, menu);
     }
+
 
     public URL makeURL (String cidade) {
 
@@ -94,18 +91,45 @@ public class ForecastFragment extends Fragment implements AsyncResponse{
     public boolean onOptionsItemSelected(MenuItem item) {
 
         int id = item.getItemId();
-        if (id == R.id.action_refresh) {
+        if (id == R.id.action_settingsRefresh) {
 
+            updateWeather();
 
-            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-           // String syncConnPref = sharedPref.getString(SettingsActivity.KEY, "")
-
-                 task.delegate = this;
-                 task.execute(makeURL("test"));
 
             return true;
         }
+        if (id == R.id.showOnMap){
+
+
+            // Create the text message with a string
+            Intent showOnMapIntent = new Intent();
+            showOnMapIntent.setAction(Intent.ACTION_VIEW);
+            String location = WeatherDataParser.location;
+            showOnMapIntent.setData(Uri.parse(location));
+
+            // Verify that the intent will resolve to an activity
+            if (showOnMapIntent.resolveActivity(getContext().getPackageManager()) != null) {
+                startActivity(showOnMapIntent);
+            }
+        }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void updateWeather(){
+
+        DownloadDataFromOWM task = new DownloadDataFromOWM();
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String cidadeDasPreferencias = sharedPref.getString(getString(R.string.pref_location_key),getString(R.string.pref_location_default));
+
+
+        task.delegate = this;
+        task.execute(makeURL(cidadeDasPreferencias));
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        updateWeather();
     }
 
     @Override
@@ -113,23 +137,11 @@ public class ForecastFragment extends Fragment implements AsyncResponse{
                              Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-
-        final String[] forecastArray = {"Hoje - Sol - 14/30",
-                "Amanhã - Sol - 14/30",
-                "Quinta - Sol - 14/30",
-                "Sexta - Sol - 14/30",
-                "Sábado - Sol - 14/30",
-                "Domingo - Sol - 14/30",
-                "Segunda - Sol - 14/30",
-                "Terça - Sol - 14/30"};
-
-        List<String> weekForecast = new ArrayList<>(Arrays.asList(forecastArray));
-
         adapter = new ArrayAdapter<>(
                 getActivity(),
                 R.layout.list_item_forecast,
                 R.id.list_item_forecast_textview,
-                weekForecast);
+                new ArrayList<String>());
 
         final ListView forecastListView = (ListView) rootView.findViewById(R.id.listview_forecast);
         forecastListView.setAdapter(adapter);
