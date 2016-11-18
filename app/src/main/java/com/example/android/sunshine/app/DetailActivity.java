@@ -57,39 +57,13 @@ public class DetailActivity extends ActionBarActivity {
    //     return true;
    // }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
-            startActivity(intent);
-        }
-        if (id == R.id.menu_item_share) {
-
-
-
-
-            // Verify that the intent will resolve to an activity
-            if (sendIntent.resolveActivity(getPackageManager()) != null) {
-                startActivity(sendIntent);
-            }
-
-            setShareIntent(sendIntent);
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 
 
     private void setShareIntent(Intent shareIntent) {
-        if (mShareActionProvider != null) {
-            mShareActionProvider.setShareIntent(shareIntent);
-        }
+  //      if (mShareActionProvider != null) {
+  //          mShareActionProvider.setShareIntent(shareIntent);
+  //      }
     }
 
     /**
@@ -103,6 +77,7 @@ public class DetailActivity extends ActionBarActivity {
         public DetailFragment() {
             setHasOptionsMenu(true);
         }
+        Intent sendIntent;
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -125,7 +100,7 @@ public class DetailActivity extends ActionBarActivity {
 
         public Intent createShareForecastIntent() {
 
-            Intent sendIntent = new Intent(Intent.ACTION_SEND);
+            sendIntent = new Intent(Intent.ACTION_SEND);
             sendIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
             sendIntent.setType("text/plain");
             sendIntent.putExtra(Intent.EXTRA_TEXT, forecastStr + FORECAST_SHARE_HASHTAG);
@@ -138,20 +113,47 @@ public class DetailActivity extends ActionBarActivity {
         public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
             // Inflate the menu; this adds items to the action bar if it is present.
             inflater.inflate(R.menu.main, menu);
-            //  getMenuInflater().inflate(R.menu.shareaction, menu);
+            inflater.inflate(R.menu.shareaction, menu);
             // Locate MenuItem with ShareActionProvider
-            MenuItem item = menu.findItem(R.id.menu_item_share);
+        //    MenuItem item = menu.findItem(R.id.menu_item_share);
 
             // Fetch and store ShareActionProvider
-            ShareActionProvider mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
+     //       ShareActionProvider mShareActionProvider  = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
 
-            if (mShareActionProvider  != null ) {
-                mShareActionProvider.setShareIntent(createShareForecastIntent());
-            }
+       //     if (mShareActionProvider  != null ) {
+       //         mShareActionProvider.setShareIntent(createShareForecastIntent());
+       //     }
 
           //  return true;
         }
 
+        @Override
+        public boolean onOptionsItemSelected(MenuItem item) {
+            // Handle action bar item clicks here. The action bar will
+            // automatically handle clicks on the Home/Up button, so long
+            // as you specify a parent activity in AndroidManifest.xml.
+            int id = item.getItemId();
+
+            //noinspection SimplifiableIfStatement
+            if (id == R.id.action_settings) {
+                Intent intent = new Intent(getContext(), SettingsActivity.class);
+                startActivity(intent);
+            }
+            if (id == R.id.menu_item_share) {
+
+                // Verify that the intent will resolve to an activity
+                if (sendIntent == null){
+                    sendIntent = createShareForecastIntent();
+                }
+                if (sendIntent.resolveActivity(getContext().getPackageManager()) != null) {
+                    startActivity(sendIntent);
+                }
+
+                //  setShareIntent(sendIntent);
+            }
+
+            return super.onOptionsItemSelected(item);
+        }
 
 
     }

@@ -46,8 +46,38 @@ public class ForecastFragment extends Fragment implements AsyncResponse{
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setHasOptionsMenu(true);
+        Log.d(LOG_TAG, "onCreate");
+    }
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.d(LOG_TAG, "onStart");
+        updateWeather();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d(LOG_TAG, "onPause");
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.d(LOG_TAG, "onStop");
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(LOG_TAG, "onResume");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(LOG_TAG, "onDestroy");
     }
 
     @Override
@@ -126,11 +156,7 @@ public class ForecastFragment extends Fragment implements AsyncResponse{
         task.execute(makeURL(cidadeDasPreferencias));
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        updateWeather();
-    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
