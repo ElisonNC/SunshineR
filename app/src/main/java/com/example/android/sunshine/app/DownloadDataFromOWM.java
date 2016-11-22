@@ -19,7 +19,7 @@ import java.net.URL;
  * Created by elison.coelho on 08/11/2016.
  */
 
-public class DownloadDataFromOWM extends AsyncTask<URL,Integer,String[]> {
+public class DownloadDataFromOWM extends AsyncTask<URL,Integer,Void> {
 
     private final String LOG_TAG = DownloadDataFromOWM.class.getSimpleName();
 
@@ -27,26 +27,17 @@ public class DownloadDataFromOWM extends AsyncTask<URL,Integer,String[]> {
 
 
     @Override
-    protected String[] doInBackground(URL... urls) {
+    protected Void doInBackground(URL... urls) {
 
-        String forecastJsonStr = getJsonWeatherFromServer(urls);
+        getJsonWeatherFromServer(urls);
 
-        if (forecastJsonStr == null) return null;
-
-
-        WeatherDataParser parse = new WeatherDataParser();
-
-        try {
-            return parse.parseJsonFor3HourWeather(forecastJsonStr);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
 
         return null;
+
     }
 
     @Nullable
-    private String getJsonWeatherFromServer(URL[] urls) {
+    private Void getJsonWeatherFromServer(URL[] urls) {
         // These two need to be declared outside the try/catch
         // so that they can be closed in the finally block.
         HttpURLConnection urlConnection = null;
@@ -72,7 +63,7 @@ public class DownloadDataFromOWM extends AsyncTask<URL,Integer,String[]> {
             StringBuffer buffer = new StringBuffer();
             if (inputStream == null) {
                 // Nothing to do.
-                return null;
+
             }
             reader = new BufferedReader(new InputStreamReader(inputStream));
 
@@ -86,9 +77,16 @@ public class DownloadDataFromOWM extends AsyncTask<URL,Integer,String[]> {
 
             if (buffer.length() == 0) {
                 // Stream was empty.  No point in parsing.
-                return null;
+
             }
             forecastJsonStr = buffer.toString();
+            WeatherDataParser parse = new WeatherDataParser();
+
+            try {
+               parse.parseJsonFor3HourWeather(forecastJsonStr);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             Log.e(LOG_TAG, "Forecast JSON String: " + forecastJsonStr);
 
         } catch (IOException e) {
@@ -96,6 +94,7 @@ public class DownloadDataFromOWM extends AsyncTask<URL,Integer,String[]> {
             // If the code didn't successfully get the weather data, there's no point in attemping
             // to parse it.
             return null;
+
         } finally{
             if (urlConnection != null) {
                 urlConnection.disconnect();
@@ -108,7 +107,7 @@ public class DownloadDataFromOWM extends AsyncTask<URL,Integer,String[]> {
                 }
             }
         }
-        return forecastJsonStr;
+       return  null;
     }
 
 
