@@ -18,6 +18,8 @@ package com.example.android.sunshine.app;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
@@ -25,7 +27,10 @@ import android.text.format.Time;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 
+import com.example.android.sunshine.app.data.WeatherContract;
 import com.example.android.sunshine.app.data.WeatherContract.WeatherEntry;
+import com.example.android.sunshine.app.data.WeatherDbHelper;
+import com.example.android.sunshine.app.data.WeatherProvider;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -78,13 +83,13 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
         SharedPreferences sharedPrefs =
                 PreferenceManager.getDefaultSharedPreferences(mContext);
         String unitType = sharedPrefs.getString(
-                mContext.getString(R.string.pref_units_key),
-                mContext.getString(R.string.pref_units_metric));
+                mContext.getString(R.string.pref_temp_units_key),
+                mContext.getString(R.string.pref_temp_units_default));
 
-        if (unitType.equals(mContext.getString(R.string.pref_units_imperial))) {
+        if (unitType.equals(mContext.getString(R.string.pref_temp_units_imperial))) {
             high = (high * 1.8) + 32;
             low = (low * 1.8) + 32;
-        } else if (!unitType.equals(mContext.getString(R.string.pref_units_metric))) {
+        } else if (!unitType.equals(mContext.getString(R.string.pref_temp_units_default))) {
             Log.d(LOG_TAG, "Unit type not found: " + unitType);
         }
 
@@ -99,16 +104,20 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
     /**
      * Helper method to handle insertion of a new location in the weather database.
      *
-     * @param locationSetting The location string used to request updates from the server.
+     *
      * @param cityName A human-readable city name, e.g "Mountain View"
      * @param lat the latitude of the city
      * @param lon the longitude of the city
      * @return the row ID of the added location.
      */
-    long addLocation(String locationSetting, String cityName, double lat, double lon) {
-        // Students: First, check if the location with this city name exists in the db
+    long addLocation(String cityName, double lat, double lon) {
+       // Students: First, check if the location with this city name exists in the db
         // If it exists, return the current ID
         // Otherwise, insert it using the content resolver and the base URI
+
+
+
+
         return -1;
     }
 
@@ -187,8 +196,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
             double cityLatitude = cityCoord.getDouble(OWM_LATITUDE);
             double cityLongitude = cityCoord.getDouble(OWM_LONGITUDE);
 
-            long locationId = addLocation(locationSetting, cityName, cityLatitude, cityLongitude);
-
+            long locationId = addLocation( cityName, cityLatitude, cityLongitude);
             // Insert the new weather information into the database
             Vector<ContentValues> cVVector = new Vector<ContentValues>(weatherArray.length());
 

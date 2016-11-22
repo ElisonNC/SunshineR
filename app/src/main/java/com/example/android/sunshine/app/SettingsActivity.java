@@ -17,7 +17,9 @@ public class SettingsActivity extends PreferenceActivity
         super.onCreate(savedInstanceState);
 
         addPreferencesFromResource(R.xml.pref_general);
+
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_location_key)));
+        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_temp_units_key)));
     }
 
     /**
@@ -52,9 +54,6 @@ public class SettingsActivity extends PreferenceActivity
         } else {
             // For other preferences, set the summary to the value's simple string representation.
             preference.setSummary(stringValue);
-
-
-
         }
         return true;
     }

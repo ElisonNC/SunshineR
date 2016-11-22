@@ -153,6 +153,7 @@ public class ForecastFragment extends Fragment implements AsyncResponse{
 
 
         task.delegate = this;
+      // String tes = Utility.getPreferredLocation(getActivity());
         task.execute(makeURL(cidadeDasPreferencias));
     }
 
