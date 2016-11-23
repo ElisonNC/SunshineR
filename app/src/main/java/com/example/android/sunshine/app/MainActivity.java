@@ -15,10 +15,8 @@ import com.google.android.gms.common.api.GoogleApiClient;
 
 public class MainActivity extends ActionBarActivity {
 
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
+    String mLocation;
+    private final String FORECASTFRAGMENT_TAG = "FFTAG";
     private GoogleApiClient client;
 
     @Override
@@ -27,9 +25,10 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new ForecastFragment())
+                    .add(R.id.container, new ForecastFragment(), FORECASTFRAGMENT_TAG)
                     .commit();
         }
+        mLocation = Utility.getPreferredLocation(getApplicationContext());
 
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
@@ -83,6 +82,19 @@ public class MainActivity extends ActionBarActivity {
         client.disconnect();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        String location = Utility.getPreferredLocation( this );
+                // update the location in our second pane using the fragment manager
+              if (location != null && !location.equals(mLocation)) {
+                ForecastFragment ff = (ForecastFragment)getSupportFragmentManager().findFragmentByTag(FORECASTFRAGMENT_TAG);
+               if ( null != ff ) {
+                       ff.onLocationChanged();
+                    }
+                        mLocation = location;
+             }
+    }
 }
 
 

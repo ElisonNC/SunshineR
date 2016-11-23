@@ -41,7 +41,9 @@ public class ForecastFragment extends Fragment implements
         LoaderManager.LoaderCallbacks<Cursor> {
 
 
-    private static final int URL_LOADER = 0;
+    private static final int FORECAST_LOADER = 0;
+
+
 
     private final String LOG_TAG = ForecastFragment.class.getSimpleName();
 
@@ -89,17 +91,11 @@ public class ForecastFragment extends Fragment implements
         setHasOptionsMenu(true);
         Log.d(LOG_TAG, "onCreate");
     }
-    @Override
-    public void onStart() {
-        super.onStart();
-        Log.d(LOG_TAG, "onStart");
-        updateWeather();
-    }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+    public void onActivityCreated( Bundle savedInstanceState) {
          super.onActivityCreated(savedInstanceState);
-        getLoaderManager().initLoader(URL_LOADER, null, this);
+        getLoaderManager().initLoader(FORECAST_LOADER, null, this);
     }
 
     @Override
@@ -215,12 +211,33 @@ public class ForecastFragment extends Fragment implements
 
         ListView forecastListView = (ListView) rootView.findViewById(R.id.listview_forecast);
         forecastListView.setAdapter(adapter);
+        forecastListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView adapterView, View view, int position, long l) {
+                // CursorAdapter returns a cursor at the correct position for getItem(), or null
+                // if it cannot seek to that position.
+                Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
+                if (cursor != null) {
+                    String locationSetting = Utility.getPreferredLocation(getActivity());
+                    Intent intent = new Intent(getActivity(), DetailActivity.class)
+                            .setData(WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
+                                    locationSetting, cursor.getLong(COL_WEATHER_DATE)
+                            ));
+                    startActivity(intent);
+                }
+            }
+        });
 
         return rootView;
     }
 
+    void onLocationChanged(){
+        updateWeather();
+        getLoaderManager().restartLoader(FORECAST_LOADER, null, this);
+    }
 
-    @Override
+
     public Loader<Cursor> onCreateLoader(int loaderID, Bundle args) {
          /*
      * Takes action based on the ID of the Loader that's being created

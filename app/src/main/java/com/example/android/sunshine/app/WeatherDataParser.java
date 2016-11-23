@@ -44,6 +44,7 @@ public class WeatherDataParser {
 
 
     public Void parseJsonFor3HourWeather(String forecastJsonStr) throws JSONException {
+
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MySuperAppApplication.getContext());
         String locationSetting = sharedPref.getString(MySuperAppApplication.getContext().getString(R.string.pref_location_key),MySuperAppApplication.getContext().getString(R.string.pref_location_default));
 
@@ -94,6 +95,7 @@ public class WeatherDataParser {
             Time dayTime = new Time();
             dayTime.setToNow();
 
+
             // we start at the day returned by local time. Otherwise this is a mess.
             int julianStartDay = Time.getJulianDay(System.currentTimeMillis(), dayTime.gmtoff);
 
@@ -102,7 +104,7 @@ public class WeatherDataParser {
 
             for(int i = 0; i < weatherArray.length(); i++) {
                 // These are the values that will be collected.
-                long dateTime;
+                String dateTime;
                 double pressure;
                 int humidity;
                 double windSpeed;
@@ -119,7 +121,7 @@ public class WeatherDataParser {
                 JSONObject hourForecast = dayForecast.getJSONObject("main");
 
                 // Cheating to convert this to UTC time, which is what we want anyhow
-                dateTime = dayTime.setJulianDay(julianStartDay+i);
+                dateTime = returnDate(dayForecast.get("dt_txt").toString());
                 pressure = hourForecast.getDouble(OWM_PRESSURE);
                 humidity = hourForecast.getInt(OWM_HUMIDITY);
 
@@ -171,7 +173,7 @@ public class WeatherDataParser {
             }
 
 
-            Log.d(LOG_TAG, "FetchWeatherTask Complete. " + inserted + " Inserted");
+            Log.d(LOG_TAG, "WeatherDataParser Complete. " + inserted + " Inserted");
 
 
         } catch (JSONException e) {
@@ -181,6 +183,39 @@ public class WeatherDataParser {
         return null;
 
 
+    }
+
+    public String returnDate(String date) {
+
+        DateFormat formatter;
+        formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        String str_date = date;
+
+        String millisec = null;
+
+
+
+
+        String day = "";
+        Date newdate = null;
+        try {
+
+            newdate = formatter.parse(str_date);
+            String[] splitDate = (newdate.toString()).split(" ");
+            day = (""+splitDate[0]+", "+splitDate[1]+" "+ splitDate[2]+" "+ splitDate[3]+"");
+
+            Date d = formatter.parse(str_date);
+            millisec = ""+d.getTime()+"";
+
+
+
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return millisec;
     }
 
     long addLocation( String cityName, double lat, double lon) {
