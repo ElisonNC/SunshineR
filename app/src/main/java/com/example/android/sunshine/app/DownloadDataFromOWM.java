@@ -22,9 +22,12 @@ import java.net.URL;
 public class DownloadDataFromOWM extends AsyncTask<URL,Integer,Void> {
 
     private final String LOG_TAG = DownloadDataFromOWM.class.getSimpleName();
-
+    private final Context mComtext;
     public AsyncResponse delegate = null;
 
+    DownloadDataFromOWM(Context context){
+        mComtext = context;
+    }
 
     @Override
     protected Void doInBackground(URL... urls) {
@@ -80,7 +83,7 @@ public class DownloadDataFromOWM extends AsyncTask<URL,Integer,Void> {
 
             }
             forecastJsonStr = buffer.toString();
-            WeatherDataParser parse = new WeatherDataParser();
+            WeatherDataParser parse = new WeatherDataParser(mComtext);
 
             try {
                parse.parseJsonFor3HourWeather(forecastJsonStr);

@@ -15,6 +15,7 @@ import android.util.Log;
 import android.widget.ArrayAdapter;
 
 import com.example.android.sunshine.app.data.WeatherContract;
+
 import com.example.android.sunshine.app.data.WeatherDbHelper;
 import com.example.android.sunshine.app.data.WeatherProvider;
 
@@ -37,16 +38,17 @@ import java.util.Vector;
 
 
 public class WeatherDataParser {
+    private final Context mContext;
 
     public static String location;
     private final String LOG_TAG = ForecastFragment.class.getSimpleName();
 
+    WeatherDataParser(Context context){
+        mContext = context;
+    }
 
 
     public Void parseJsonFor3HourWeather(String forecastJsonStr) throws JSONException {
-
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MySuperAppApplication.getContext());
-        String locationSetting = sharedPref.getString(MySuperAppApplication.getContext().getString(R.string.pref_location_key),MySuperAppApplication.getContext().getString(R.string.pref_location_default));
 
         final String OWM_CITY = "city";
         final String OWM_CITY_NAME = "name";
@@ -91,10 +93,8 @@ public class WeatherDataParser {
 
             Vector<ContentValues> cVVector = new Vector<ContentValues>(weatherArray.length());
 
-
             Time dayTime = new Time();
             dayTime.setToNow();
-
 
             // we start at the day returned by local time. Otherwise this is a mess.
             int julianStartDay = Time.getJulianDay(System.currentTimeMillis(), dayTime.gmtoff);
@@ -122,6 +122,7 @@ public class WeatherDataParser {
 
                 // Cheating to convert this to UTC time, which is what we want anyhow
                 dateTime = returnDate(dayForecast.get("dt_txt").toString());
+              //  dateTime = String.valueOf(dayTime.setJulianDay(julianStartDay+i));
                 pressure = hourForecast.getDouble(OWM_PRESSURE);
                 humidity = hourForecast.getInt(OWM_HUMIDITY);
 
@@ -166,12 +167,10 @@ public class WeatherDataParser {
 
                 cVVector.toArray(weatherEntries);
 
-                inserted =  MySuperAppApplication.getContext().getContentResolver().bulkInsert(
-                        WeatherContract.WeatherEntry.CONTENT_URI,weatherEntries);
+                inserted =  mContext.getContentResolver().bulkInsert(WeatherContract.WeatherEntry.CONTENT_URI,weatherEntries);
 
 
             }
-
 
             Log.d(LOG_TAG, "WeatherDataParser Complete. " + inserted + " Inserted");
 
@@ -182,13 +181,11 @@ public class WeatherDataParser {
         }
         return null;
 
-
     }
 
     public String returnDate(String date) {
 
-        DateFormat formatter;
-        formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
 
         String str_date = date;
 
@@ -197,17 +194,18 @@ public class WeatherDataParser {
 
 
 
-        String day = "";
-        Date newdate = null;
+     //   String day = "";
+     //   Date newdate = null;
         try {
 
-            newdate = formatter.parse(str_date);
-            String[] splitDate = (newdate.toString()).split(" ");
-            day = (""+splitDate[0]+", "+splitDate[1]+" "+ splitDate[2]+" "+ splitDate[3]+"");
+         //   newdate = formatter.parse(str_date);
+         //   String[] splitDate = (newdate.toString()).split(" ");
+          //  day = (""+splitDate[0]+", "+splitDate[1]+" "+ splitDate[2]+" "+ splitDate[3]+"");
 
+            DateFormat formatter;
+            formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Date d = formatter.parse(str_date);
             millisec = ""+d.getTime()+"";
-
 
 
 
@@ -222,7 +220,7 @@ public class WeatherDataParser {
 
         long resultId;
 
-        Cursor cursor = MySuperAppApplication.getContext().getContentResolver().query(
+        Cursor cursor = mContext.getContentResolver().query(
                 WeatherContract.LocationEntry.CONTENT_URI,
                 new String[]{ WeatherContract.LocationEntry._ID},
                 WeatherContract.LocationEntry.COLUMN_CITY_NAME + " = ?",
@@ -244,7 +242,7 @@ public class WeatherDataParser {
             values.put(WeatherContract.LocationEntry.COLUMN_COORD_LAT, lat);
             values.put(WeatherContract.LocationEntry.COLUMN_COORD_LONG, lon);
 
-            Uri insertedUri = MySuperAppApplication.getContext().getContentResolver().insert(
+            Uri insertedUri = mContext.getContentResolver().insert(
                                         WeatherContract.LocationEntry.CONTENT_URI,
                     values
             );

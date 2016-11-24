@@ -8,6 +8,7 @@ import com.example.android.sunshine.app.R;
 
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.StringTokenizer;
 
 public class Utility {
 
@@ -19,7 +20,7 @@ public class Utility {
 
     public static boolean isMetric(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        return prefs.getString(context.getString(R.string.pref_temp_units_key),context.getString(R.string.pref_location_default)).equals(context.getString(R.string.pref_location_default));
+        return prefs.getString(context.getString(R.string.pref_temp_units_key),context.getString(R.string.pref_temp_units_default)).equals(context.getString(R.string.pref_temp_units_default));
     }
 
     public static String formatTemperature(double temperature, boolean isMetric) {
@@ -36,5 +37,7 @@ public class Utility {
     public static String formatDate(long dateInMillis) {
         Date date = new Date(dateInMillis);
         return DateFormat.getDateInstance().format(date);
+
+       // return String.valueOf(dateInMillis);
     }
 }

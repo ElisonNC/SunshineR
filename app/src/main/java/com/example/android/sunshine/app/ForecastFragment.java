@@ -77,13 +77,13 @@ public class ForecastFragment extends Fragment implements
     static final int COL_COORD_LAT = 6;
     static final int COL_COORD_LONG = 7;
 
+    ForecastAdapter adapter;
+
 
     public ForecastFragment() {
 
     }
 
-
-    ForecastAdapter adapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -134,6 +134,7 @@ public class ForecastFragment extends Fragment implements
         // "http://api.openweathermap.org/data/2.5/forecast?q=Lages,br&units=metric&appid=3e49709532f67599b8b2b7cd01d44293"
 
         Uri.Builder builder = new Uri.Builder();
+
         builder.scheme("http")
                 .authority("api.openweathermap.org")
                 .appendPath("data")
@@ -189,16 +190,17 @@ public class ForecastFragment extends Fragment implements
 
     private void updateWeather(){
 
-        DownloadDataFromOWM task = new DownloadDataFromOWM();
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String cidadeDasPreferencias = sharedPref.getString(getString(R.string.pref_location_key),getString(R.string.pref_location_default));
+        DownloadDataFromOWM task = new DownloadDataFromOWM(getActivity());
+        String location = Utility.getPreferredLocation(getActivity());
 
-
-
-      // String tes = Utility.getPreferredLocation(getActivity());
-        task.execute(makeURL(cidadeDasPreferencias));
+        task.execute(makeURL(location));
     }
 
+//    public void onStart() {
+//        super.onStart();
+//        Log.d(LOG_TAG, "onStart");
+//        updateWeather();
+//    }
 
 
     @Override
@@ -237,7 +239,7 @@ public class ForecastFragment extends Fragment implements
         getLoaderManager().restartLoader(FORECAST_LOADER, null, this);
     }
 
-
+    @Override
     public Loader<Cursor> onCreateLoader(int loaderID, Bundle args) {
          /*
      * Takes action based on the ID of the Loader that's being created
