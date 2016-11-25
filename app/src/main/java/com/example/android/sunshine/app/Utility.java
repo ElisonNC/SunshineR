@@ -29,19 +29,16 @@ public class Utility {
         return prefs.getString(context.getString(R.string.pref_temp_units_key),context.getString(R.string.pref_temp_units_default)).equals(context.getString(R.string.pref_temp_units_default));
     }
 
-    public static String formatTemperature(double temperature, boolean isMetric) {
+    public static String formatTemperature(Context context, double temperature, boolean isMetric) {
         double temp;
-        String result;
 
         if ( !isMetric ) {
             temp = 9*temperature/5+32;
-            result = String.format("%.0f", temp)+" ºF";
         } else {
             temp = temperature;
-            result = String.format("%.0f", temp)+" ºC";
         }
 
-        return result;
+        return context.getString(R.string.format_temperature, temp);
     }
 
     public static String formatDate(long dateInMillis) {
@@ -97,16 +94,20 @@ public class Utility {
         int julianDay = Time.getJulianDay(dateInMillis, t.gmtoff);
         int currentJulianDay = Time.getJulianDay(System.currentTimeMillis(), t.gmtoff);
         if (julianDay == currentJulianDay) {
-            return context.getString(R.string.today);
+
+            return context.getString(R.string.today)+" "+getHour(dateInMillis);
+
         } else if ( julianDay == currentJulianDay +1 ) {
-            return context.getString(R.string.tomorrow);
+
+            return context.getString(R.string.tomorrow)+" "+getHour(dateInMillis);
+
         } else {
             Time time = new Time();
             time.setToNow();
             // Otherwise, the format is just the day of the week (e.g "Wednesday".
             Locale ptBr = new Locale("pt", "BR");
             SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE", ptBr);
-            return dayFormat.format(dateInMillis);
+            return dayFormat.format(dateInMillis)+" "+getHour(dateInMillis);
         }
     }
 
@@ -135,7 +136,38 @@ public class Utility {
         return simpleDateFormat.format(calendar.getTime());
     }
 
+    public static String getFormattedWind(Context context, float windSpeed, float degrees) {
+        int windFormat;
+        if (Utility.isMetric(context)) {
+            windFormat = R.string.format_wind_kmh;
+        } else {
+            windFormat = R.string.format_wind_mph;
+            windSpeed = .621371192237334f * windSpeed;
+        }
 
+        // From wind direction in degrees, determine compass direction as a string (e.g NW)
+        // You know what's fun, writing really long if/else statements with tons of possible
+        // conditions.  Seriously, try it!
+        String direction = "Unknown";
+        if (degrees >= 337.5 || degrees < 22.5) {
+            direction = "N";
+        } else if (degrees >= 22.5 && degrees < 67.5) {
+            direction = "NE";
+        } else if (degrees >= 67.5 && degrees < 112.5) {
+            direction = "E";
+        } else if (degrees >= 112.5 && degrees < 157.5) {
+            direction = "SE";
+        } else if (degrees >= 157.5 && degrees < 202.5) {
+            direction = "S";
+        } else if (degrees >= 202.5 && degrees < 247.5) {
+            direction = "SW";
+        } else if (degrees >= 247.5 && degrees < 292.5) {
+            direction = "W";
+        } else if (degrees >= 292.5 && degrees < 337.5) {
+            direction = "NW";
+        }
+        return String.format(context.getString(windFormat), windSpeed, direction);
+    }
 
 
 }

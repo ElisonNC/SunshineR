@@ -16,4 +16,11 @@
         android:orderInCategory="100"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/menu_item_share"
+        android:title="Share"
+        app:actionProviderClass=
+            "android.support.v7.widget.ShareActionProvider"
+        />
+
 </menu>

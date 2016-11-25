@@ -177,7 +177,7 @@ public class ForecastFragment extends Fragment implements
             // Create the text message with a string
             Intent showOnMapIntent = new Intent();
             showOnMapIntent.setAction(Intent.ACTION_VIEW);
-            String location = WeatherDataParser.location;
+            String location = Utility.getPreferredLocation(getContext());
             showOnMapIntent.setData(Uri.parse(location));
 
             // Verify that the intent will resolve to an activity
@@ -209,14 +209,17 @@ public class ForecastFragment extends Fragment implements
 
         adapter = new ForecastAdapter(getActivity(),null,0);
 
-         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        ListView forecastListView = (ListView) rootView.findViewById(R.id.listview_forecast);
-        forecastListView.setAdapter(adapter);
-        forecastListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        // Get a reference to the ListView, and attach this adapter to it.
+        ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
+        listView.setAdapter(adapter);
+
+        // We'll call our MainActivity
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
-            public void onItemClick(AdapterView adapterView, View view, int position, long l) {
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 // CursorAdapter returns a cursor at the correct position for getItem(), or null
                 // if it cannot seek to that position.
                 Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
@@ -230,7 +233,6 @@ public class ForecastFragment extends Fragment implements
                 }
             }
         });
-
         return rootView;
     }
 
